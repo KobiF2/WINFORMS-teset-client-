@@ -16,7 +16,7 @@ namespace WINFORMS_teset.Entites
         public int dirY;
         public bool isMoving;
 
-        public int flip;
+        public int dirFlip;
 
         public int currentAnimation;
         public int currentFrame;
@@ -46,7 +46,7 @@ namespace WINFORMS_teset.Entites
             currentAnimation = 0;
             currentFrame = 0;
             currentLimit = idleFrames;
-            flip = 1;
+            dirFlip = 1;
 
         }
 

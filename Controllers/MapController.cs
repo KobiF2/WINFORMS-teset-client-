@@ -12,24 +12,33 @@ using System.Windows.Forms;
 
 namespace WINFORMS_teset.Controllers
 {
-    public static class MapController
+    public static class Map
     {
+
+        // Constants declaration
         public const int mapHeight = 15;
         public const int mapWidth = 15;
         public static int cellSize = 36;
+
+        // Two-dimensional array that will hold the map's data
         public static int[,] map = new int[mapHeight, mapWidth];
+
+        // Sprite sheet image object and list of map objects
         public static Image spriteSheet;
         public static List<MapEntity> mapObjects;
-        public static List<Rival> rivals = new List<Rival>();
-        public static Point mapDelta;
 
 
+        // Initialisation method
         public static void Init()
         {
+            // Loads map data
             map = GetMap();
             spriteSheet = new Bitmap(Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\map1.png"));
+            // Initialise map objects list
             mapObjects = new List<MapEntity>();
         }
+
+        // Method returns the map data in the form of a two-dimensional array
         public static int[,] GetMap()
         {
             return new int[,]
@@ -37,6 +46,7 @@ namespace WINFORMS_teset.Controllers
                 { 1,6,6,6,6,6,6,6,6,6,6,6,6,6,2},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+                { 5,0,0,0,0,0,0,0,0,0,0,11,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
@@ -44,20 +54,21 @@ namespace WINFORMS_teset.Controllers
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-                { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-                { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+                { 5,0,0,12,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 5,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
                 { 3,8,8,8,8,8,8,8,8,8,8,8,8,8,4},
             };
         }
 
-        public static void SeedMap(Graphics g)
+        // Method that populates the mapObjects list and draws objects to the form
+        public static void MapItem(Graphics g)
         {
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapHeight; j++)
                 {
+                    // Draws objects to the form if the corresponding value is present in the map data array
                     if (map[i, j] == 10)
                     {
                         g.DrawImage(spriteSheet, new Rectangle(new Point(j * cellSize, i * cellSize), new Size(cellSize * 3, cellSize * 3)), 202, 298, 107, 114, GraphicsUnit.Pixel);
@@ -80,20 +91,16 @@ namespace WINFORMS_teset.Controllers
             }
         }
 
-        public static void MapMoving(Point delta)
-        {
-            mapDelta.X += delta.X;
-            mapDelta.Y += delta.Y;
-        }
-
-
+        // This method draws objects onto to map
         public static void DrawMap(Graphics g)
         {
+            // Nested for loop to iterate over each cell in the map
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapHeight; j++)
                 {
-
+                    // Check the value of the current cell in the map array
+                    // and draw corresponding rectangular area of the map image 
                     if (map[i, j] == 1)
                     {
                         g.DrawImage(spriteSheet, new Rectangle(new Point(j * cellSize, i * cellSize), new Size(cellSize, cellSize)), 96, 0, 20, 20, GraphicsUnit.Pixel);
@@ -141,18 +148,22 @@ namespace WINFORMS_teset.Controllers
                 }
             }
 
-            MapController.SeedMap(g);
+
+            // Call the MapItem method from the Map class to draw the seed location on the map
+            Map.MapItem(g);
         }
 
+        // This method returns the total width of the map in pixels
         public static int GetWidth()
         {
             return cellSize * (mapWidth) + 15;
         }
+        // This method returns the total height of the map in pixels
         public static int GetHeight()
         {
             return cellSize * (mapHeight + 1);
         }
 
-     
+
     }
 }

@@ -2,23 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using WINFORMS_teset.Controllers;
-using System.Security.Policy;
-using WINFORMS_teset.Entities;
-using System.Runtime.CompilerServices;
-using WINFORMS_teset.Models;
-using MonoGame.Extended;
+
 
 namespace WINFORMS_teset.Controllers
 {
     public class PhysicsController
     {
         
-        public Transform transform;
+       
 
 
         public PhysicsController()
@@ -31,12 +22,12 @@ namespace WINFORMS_teset.Controllers
 
         {
 
-            if (entity.posX + dir.X <= 0 || entity.posX + dir.X >= MapController.cellSize * (MapController.mapWidth - 2) || entity.posY + dir.Y <= 0 || entity.posY + dir.Y >= MapController.cellSize * 1.03 * (MapController.mapHeight - 3))
+            if (entity.posX + dir.X <= 0 || entity.posX + dir.X >= Map.cellSize * (Map.mapWidth - 2) || entity.posY + dir.Y <= 0 || entity.posY + dir.Y >= Map.cellSize * 1.03 * (Map.mapHeight - 3))
                 return true;
 
-            for (int i = 0; i < MapController.mapObjects.Count; i++)
+            for (int i = 0; i < Map.mapObjects.Count; i++)
             {
-                var currObject = MapController.mapObjects[i];
+                var currObject = Map.mapObjects[i];
 
 
 

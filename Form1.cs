@@ -12,9 +12,12 @@ using WINFORMS_teset.Entities;
 using WINFORMS_teset.Models;
 using WebSocket = WebSocketSharp.WebSocket;
 using WebSocketSharp;
-using WINFORMS_teset;
-using System.Net.Sockets;
-using System.Drawing.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Media;
+
+
 
 namespace WINFORMS_teset
 {
@@ -22,26 +25,38 @@ namespace WINFORMS_teset
 
     public partial class Form1 : Form
     {
+        //declare new Entity object player
+        public Entity player;
+
+        public Image knightRSheet;
+
         public Image knightBSheet;
-        //public Image knightRSheet;
+
         public Image enemy1Sheet;
         private Point delta;
-        public Entity player;
+
+        private SoundPlayer Mplayer = new SoundPlayer(@"D:\Computer Science\ER MUSIC\18_Subterranean Shunning-Grounds.wav");
+
+        public Entity player2;
         public Rival enemy;
-        public Random randNum = new Random();
+
         public bool facingLeft;
         public bool facingUp;
-        public int cameraX, cameraY;
-        public float zoom = 1.0f;
+
         public int playerHealth = 100;
         public int playerStamina = 100;
         public bool gameOver;
+
         public bool isCollide = false;
         private Random random = new Random();
-     //   private Timer timer = new Timer();
         private Point bitmapPosition;
-        private WebSocket websocket;
-        
+        public PictureBox pictureBox;
+        private Point player1Location;
+        private Point player2Location;
+
+        private int playerNumber;
+        private bool isConnected;
+
 
         public Form1()
         {
@@ -83,7 +98,7 @@ namespace WINFORMS_teset
             if (player.dirX == 0 && player.dirY == 0)
             {
                 player.isMoving = false;
-                if (player.flip == 1)
+                if (player.dirFlip == 1)
                     player.SetAnimationConfiguration(2);
                 else player.SetAnimationConfiguration(0);
             }
@@ -91,74 +106,27 @@ namespace WINFORMS_teset
         }
 
 
-        public void StartSendingLocationUpdates()
-        {
-          
 
-            timer1.Tick += (sender, e) =>
-            {
-                var locationMessage = new
-                {
-                    type = "location",
-                    x = pictureBox1.Location.X,
-                    y = pictureBox1.Location.Y
-                };
-
-                string jsonMessage = Newtonsoft.Json.JsonConvert.SerializeObject(locationMessage);
-                websocket.Send(jsonMessage);
-            };
-
-        }
 
         public void Init()
         {
             //WS UI
 
 
-
-
+            // Program.pictureBox1_MouseMove():
+                
             //map
-            MapController.Init();
+            Map.Init();
             RivalController.Init();
-              this.Width = MapController.GetWidth();
-              this.Height = MapController.GetHeight();
+              this.Width = Map.GetWidth();
+              this.Height = Map.GetHeight();
 
             //player
             knightBSheet = new Bitmap(Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\knightBlue.png"));
 
-            player = new Entity(260,425, Hero.idleFrames, Hero.runFrames, Hero.attackFrames, Hero.deathFrames, knightBSheet);
+            player = new Entity(320, 425, Hero.idleFrames, Hero.runFrames, Hero.attackFrames, Hero.deathFrames, knightBSheet);
 
             //second player
-
-            bitmapPosition = new Point(50, 50);
-            websocket = new WebSocket("ws://localhost:7456/BitmapPosition");
-            websocket.OnMessage += (sender, e) =>
-            {
-                bitmapPosition = Newtonsoft.Json.JsonConvert.DeserializeObject<Point>(e.Data);
-                UpdatePictureBox(bitmapPosition);
-
-
-            };
-            websocket.Connect();
-            Timer timer = new Timer();
-            timer.Interval = 50;
-            timer.Tick += (sender, e) =>
-            {
-                bitmapPosition.Y += 1;
-                bitmapPosition.X += 1;
-                UpdatePictureBox(bitmapPosition);
-                if (websocket.ReadyState == WebSocketState.Open)
-                {
-                    websocket.Send(data: Newtonsoft.Json.JsonConvert.SerializeObject(bitmapPosition));
-                }
-            };
-            timer.Start();
-
-            
-            UpdatePictureBox(bitmapPosition);
-
-
-
 
             //enemy
             enemy1Sheet = new Bitmap(Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\test_enemy.png"));
@@ -172,23 +140,66 @@ namespace WINFORMS_teset
 
 
             playerHealth = 100;
+            bitmapPosition = new Point(50, 50);
+            WebSocket wsc = new WebSocket("ws://localhost:7456/BitmapPosition");
+            wsc.OnMessage += (sender, e) =>
+            {
+                bitmapPosition = Newtonsoft.Json.JsonConvert.DeserializeObject<Point>(e.Data);
+                UpdatePictureBox(bitmapPosition);
+
+
+            };
+            wsc.Connect();
+            Timer timer = new Timer();
+            timer.Interval = 50;
+            timer.Tick += (sender, e) =>
+            {
+                bitmapPosition.Y += 1;
+                bitmapPosition.X += 1;
+                UpdatePictureBox(bitmapPosition);
+                if (wsc.ReadyState == WebSocketState.Open)
+                {
+                    wsc.Send(data: Newtonsoft.Json.JsonConvert.SerializeObject(bitmapPosition));
+                }
+            };
+            timer.Start();
+
+            
+            UpdatePictureBox(bitmapPosition);
+
+            void StartSendingLocationUpdates()
+            {
+
+
+                timer1.Tick += (sender, e) =>
+                {
+                    var locationMessage = new
+                    {
+                        type = "location",
+                        //     x = pictureBox1.Location.X,
+                        //  y = pictureBox1.Location.Y
+                    };
+
+                    string jsonMessage = Newtonsoft.Json.JsonConvert.SerializeObject(locationMessage);
+                    wsc.Send(jsonMessage);
+                };
+
+            }
+
+
+            //enemy
+            enemy1Sheet = new Bitmap(Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Sprites\\test_enemy.png"));
+
+            enemy = new Rival(240, 260, EnemyAni.idleFrames, EnemyAni.runFrames, EnemyAni.attackFrames, EnemyAni.deathFrames, enemy1Sheet);
+            timer1.Start();
+            if (playerHealth > 1)
+            {
+                progressBar1.Value = playerHealth;
+            }
+            else gameOver = true;
+
+            playerHealth = 100;
         }
-
-
-
-        private void Camera(object sender, EventArgs e)
-        {
-            cameraX = 0;
-            cameraY = 0;
-
-            // Following player
-            cameraX = (int)(player.posX - (ClientSize.Width / 2) / zoom);
-            cameraY = (int)(player.posY - (ClientSize.Height / 2) / zoom);
-
-            Invalidate();
-        }
-
-
 
 
 
@@ -201,34 +212,43 @@ namespace WINFORMS_teset
                     player.dirY = -3;
                     player.isMoving = true;
 
-                    if (player.flip == 1)
+                    if (player.dirFlip == 1)
                         player.SetAnimationConfiguration(8);
                     else player.SetAnimationConfiguration(0);
                     break;
                 case Keys.S:
                     player.dirY = 3;
                     player.isMoving = true;
-                    if (player.flip == 1)
+                    if (player.dirFlip == 1)
                         player.SetAnimationConfiguration(10);
                     else player.SetAnimationConfiguration(2);
                     break;
                 case Keys.A:
                     player.dirX = -3;
                     player.isMoving = true;
-                    player.SetAnimationConfiguration(9);
-                    player.flip = -1;
+                    if (player.dirY != 0)
+                    {
+                        if (player.dirFlip == 1)
+                            player.SetAnimationConfiguration(8);
+                        else player.SetAnimationConfiguration(0);
+                    }
+                    else
+                    {
+                        player.SetAnimationConfiguration(9);
+                        player.dirFlip = -1;
+                    }
                     break;
                 case Keys.D:
                     player.dirX = 3;
                     player.isMoving = true;
                     player.SetAnimationConfiguration(11);
-                    player.flip = 1;
+                    player.dirFlip = 1;
                     break;
                 case Keys.Space:
                     player.dirX = 0;
                     player.dirY = 0;
                     player.isMoving = false;
-                    if (player.flip == 1)
+                    if (player.dirFlip == 1)
                     {
                         player.SetAnimationConfiguration(16);
 
@@ -245,14 +265,14 @@ namespace WINFORMS_teset
             //PhysicsController.IsCollide(player);
             if (playerHealth > 1)
             {
-                progressBar1.Value = playerHealth;
+                 progressBar1.Value = playerHealth;
 
             }
             else
             {
                 gameOver = true;
                 //player death animation
-                //GameTimer.Stop();
+                timer1.Stop();
             }
             if (!PhysicsController.IsCollide(player, new Point(player.dirX, player.dirY)))
             {
@@ -266,7 +286,7 @@ namespace WINFORMS_teset
 
                 playerHealth -= 1;
             }
-            MapController.MapMoving(delta);
+        
 
             Invalidate();
             
@@ -292,13 +312,19 @@ namespace WINFORMS_teset
         {
             Graphics g = e.Graphics;
 
-            MapController.DrawMap(g);
+            Map.DrawMap(g);
             player.PlayAnimation(g);
             RivalController.DrawRival(g);
             enemy.PlayAnimation(g);
            
           
 
+        }
+        
+
+        private void UpdatePictureBox(Point bitmapPosition)
+        {
+          //  pictureBox1.Location = new Point(bitmapPosition.X - (pictureBox1.Width / 2), bitmapPosition.Y - (pictureBox1.Height / 2));
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -310,24 +336,21 @@ namespace WINFORMS_teset
         private void progressBar1_Click(object sender, EventArgs e)
         {
             ModifyProgressBarColor.SetState(progressBar1, progressBarRed);
-           // ModifyProgressBarColor.SetState(progressBar2, progressBarYellow);
+            // ModifyProgressBarColor.SetState(progressBar2, progressBarYellow);
         }
-
-        private void UpdatePictureBox(Point bitmapPosition)
-        {
-            pictureBox1.Location = new Point(bitmapPosition.X - (pictureBox1.Width / 2), bitmapPosition.Y - (pictureBox1.Height / 2));
-        }
-
-
-  
-
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            
+
         }
 
-       
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+  
+
 
 
     }

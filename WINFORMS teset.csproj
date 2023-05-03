@@ -105,7 +105,6 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include=".editorconfig" />
     <None Include="packages.config" />
@@ -113,11 +112,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -129,7 +123,14 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="Resources\dwdw.jpg" />
+    <None Include="Resources\dwdw1.jpg" />
+    <None Include="Resources\FEWF.png" />
+    <None Include="Resources\FWFW.png" />
+    <None Include="Resources\FWFW1.png" />
+    <None Include="Resources\te3w.png" />
     <Content Include="Sprites\3.jpg" />
+    <Content Include="Sprites\dwdw.jpg" />
     <Content Include="Sprites\knightBlue.png" />
     <Content Include="Sprites\map1.png" />
     <Content Include="Sprites\test_enemy.png" />

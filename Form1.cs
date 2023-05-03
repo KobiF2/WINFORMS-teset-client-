@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml;
 using WINFORMS_teset.Controllers;
-using WINFORMS_teset.Entites;
 using WINFORMS_teset.Entities;
 using WINFORMS_teset.Models;
 using WebSocket = WebSocketSharp.WebSocket;

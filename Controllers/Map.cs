@@ -1,4 +1,4 @@
-﻿using WINFORMS_teset.Entities;
+using WINFORMS_teset.Entities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

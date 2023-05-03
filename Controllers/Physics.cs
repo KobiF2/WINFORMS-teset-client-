@@ -6,13 +6,13 @@ using System.Drawing;
 
 namespace WINFORMS_teset.Controllers
 {
-    public class PhysicsController
+    public class Physics
     {
         
        
 
 
-        public PhysicsController()
+        public Physics()
         {
 
         }
